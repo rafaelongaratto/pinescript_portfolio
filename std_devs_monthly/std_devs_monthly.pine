@@ -1,0 +1,169 @@
+//@version=5
+indicator('Monthly Standard Deviations', 'M&W_StdDevs', true)
+
+
+//________________________________________| std. dev. calculation.
+stddevm             = input.float(defval=3.25, step=0.01, title="±0.5 SD")
+
+//________________________________________| anchor, monthly & levels inputs.
+anchorColor         = input.color(color.rgb(0, 0, 0),             title="Color",    group="Anchor", inline = "anchorin")
+anchorStyle         = input.string(line.style_dotted,               title="Style",  group="Anchor", inline = "anchorin", options = [line.style_solid, line.style_dotted, line.style_dashed, line.style_arrow_both, line.style_arrow_left, line.style_arrow_right])
+anchorWidth         = input(1,                                      title="Width",   group="Anchor", inline = "anchorin")
+
+monthlyColor         = input.color(color.rgb(191, 91, 4, 0),      title="Color",  group="Monthly", inline = "monthlyin")
+monthlyStyle         = input.string(line.style_solid,               title="Style", group="Monthly", inline = "monthlyin", options = [line.style_solid, line.style_dotted, line.style_dashed, line.style_arrow_both, line.style_arrow_left, line.style_arrow_right])
+monthlyWidth         = input(1,                                     title="Width", group="Monthly", inline = "monthlyin")
+
+stddevsColor         = input.color(color.rgb(0, 0, 0),          title="Color",  group="StdDevs", inline  = "stddevsin")
+stddevsStyle         = input.string(line.style_solid,             title="Style", group="StdDevs", inline  = "stddevsin", options = [line.style_solid, line.style_dotted, line.style_dashed, line.style_arrow_both, line.style_arrow_left, line.style_arrow_right])
+stddevsWidth         = input(1,                                   title="Width", group="StdDevs", inline  = "stddevsin")
+
+//________________________________________| newM & currentM calculation.
+is_new_month        = ta.change(time("M"))
+current_month       = month(time)
+current_year        = year(time)
+is_current_month    = month(time) == current_month and year(time) == current_year
+
+//________________________________________| request the mOpen.
+[do_M] = request.security(syminfo.tickerid, 'M', [open], lookahead=barmerge.lookahead_on)
+
+//________________________________________| 1st bar_indexM storage.
+var int first_bar_index = na
+if is_new_month
+    first_bar_index    := bar_index
+
+//________________________________________| variables for lines & labels.
+var line    monthAnchor = na
+
+var line    openLine    = na
+var label   openLabel   = na
+
+var line    lineM05     = na
+var label   labelM05    = na
+
+var line    lineMn05    = na
+var label   labelMn05   = na
+
+var line    lineM10     = na
+var label   labelM10    = na
+
+var line    lineMn10    = na
+var label   labelMn10   = na
+
+
+var line    lineM15     = na
+var label   labelM15    = na
+
+var line    lineMn15    = na
+var label   labelMn15   = na
+
+
+var line    lineM20     = na
+var label   labelM20    = na
+
+var line    lineMn20    = na
+var label   labelMn20   = na
+
+var line    lineM25     = na
+var label   labelM25    = na
+
+var line    lineMn25    = na
+var label   labelMn25   = na
+
+var line    lineM30     = na
+var label   labelM30    = na
+
+var line    lineMn30    = na
+var label   labelMn30   = na
+
+//________________________________________| levels calc. for each month.
+
+MonthlyOpen     = is_current_month ? do_M : na
+
+MonthlyL05      = is_current_month ? do_M * (100 + stddevm)     / 100 : na
+MonthlyLn05     = is_current_month ? do_M * (100 - stddevm)     / 100 : na
+
+MonthlyL10      = is_current_month ? do_M * (100 + stddevm * 2) / 100 : na
+MonthlyLn10     = is_current_month ? do_M * (100 - stddevm * 2) / 100 : na
+
+MonthlyL15      = is_current_month ? do_M * (100 + stddevm * 3) / 100 : na
+MonthlyLn15     = is_current_month ? do_M * (100 - stddevm * 3) / 100 : na
+
+MonthlyL20      = is_current_month ? do_M * (100 + stddevm * 4) / 100 : na
+MonthlyLn20     = is_current_month ? do_M * (100 - stddevm * 4) / 100 : na
+
+MonthlyL25      = is_current_month ? do_M * (100 + stddevm * 5) / 100 : na
+MonthlyLn25     = is_current_month ? do_M * (100 - stddevm * 5) / 100 : na
+
+MonthlyL30      = is_current_month ? do_M * (100 + stddevm * 6) / 100 : na
+MonthlyLn30     = is_current_month ? do_M * (100 - stddevm * 6) / 100 : na
+
+//________________________________________| lines update for current month.
+if is_current_month
+    line.delete(monthAnchor[1])
+    line.delete(openLine[1])
+    line.delete(lineM05[1])
+    line.delete(lineMn05[1])
+    line.delete(lineM10[1])
+    line.delete(lineMn10[1])
+    line.delete(lineM15[1])
+    line.delete(lineMn15[1])
+    line.delete(lineM20[1])
+    line.delete(lineMn20[1])                     //delete previous lines.
+    line.delete(lineM25[1])
+    line.delete(lineMn25[1])  
+    line.delete(lineM30[1])
+    line.delete(lineMn30[1])  
+
+    if not na(first_bar_index)
+        monthAnchor := line.new(first_bar_index, MonthlyL30, first_bar_index, MonthlyLn30,  color=anchorColor, style = anchorStyle, width = anchorWidth)
+
+        openLine    := line.new(first_bar_index, MonthlyOpen,   bar_index, MonthlyOpen,     color=monthlyColor, style = monthlyStyle, width = monthlyWidth)
+
+        lineM05     := line.new(first_bar_index, MonthlyL05,    bar_index, MonthlyL05,      color=stddevsColor, style = stddevsStyle, width = stddevsWidth)
+        lineMn05    := line.new(first_bar_index, MonthlyLn05,   bar_index, MonthlyLn05,     color=stddevsColor, style = stddevsStyle, width = stddevsWidth)
+
+        lineM10     := line.new(first_bar_index, MonthlyL10,    bar_index, MonthlyL10,      color=stddevsColor, style = stddevsStyle, width = stddevsWidth)
+        lineMn10    := line.new(first_bar_index, MonthlyLn10,   bar_index, MonthlyLn10,     color=stddevsColor, style = stddevsStyle, width = stddevsWidth)
+
+        lineM15     := line.new(first_bar_index, MonthlyL15,    bar_index, MonthlyL15,      color=stddevsColor, style = stddevsStyle, width = stddevsWidth)
+        lineMn15    := line.new(first_bar_index, MonthlyLn15,   bar_index, MonthlyLn15,     color=stddevsColor, style = stddevsStyle, width = stddevsWidth)
+
+        lineM20     := line.new(first_bar_index, MonthlyL20,    bar_index, MonthlyL20,      color=stddevsColor, style = stddevsStyle, width = stddevsWidth)
+        lineMn20    := line.new(first_bar_index, MonthlyLn20,   bar_index, MonthlyLn20,     color=stddevsColor, style = stddevsStyle, width = stddevsWidth)   //new lines from first bar of the month to current bar
+        
+        lineM25     := line.new(first_bar_index, MonthlyL25,    bar_index, MonthlyL25,      color=stddevsColor, style = stddevsStyle, width = stddevsWidth)
+        lineMn25    := line.new(first_bar_index, MonthlyLn25,   bar_index, MonthlyLn25,     color=stddevsColor, style = stddevsStyle, width = stddevsWidth)
+    
+        lineM30     := line.new(first_bar_index, MonthlyL30,    bar_index, MonthlyL30,      color=stddevsColor, style = stddevsStyle, width = stddevsWidth)
+        lineMn30    := line.new(first_bar_index, MonthlyLn30,   bar_index, MonthlyLn30,     color=stddevsColor, style = stddevsStyle, width = stddevsWidth)
+
+//________________________________________| labels update for current monmth.
+if barstate.islast and is_current_month
+    label.delete(openLabel[1])
+    label.delete(labelM05[1])
+    label.delete(labelMn05[1])
+    label.delete(labelM10[1])
+    label.delete(labelMn10[1])
+    label.delete(labelM15[1])
+    label.delete(labelMn15[1])
+    label.delete(labelM20[1])
+    label.delete(labelMn20[1])
+    label.delete(labelM25[1])
+    label.delete(labelMn25[1])
+    label.delete(labelM30[1])
+    label.delete(labelMn30[1])
+
+    openLabel       := label.new(bar_index, MonthlyOpen,    "±M. Opening",      color=color.rgb(0, 0, 0, 100), style=label.style_label_left, textcolor=monthlyColor, size=size.tiny, text_font_family=font.family_monospace)
+    labelM05        := label.new(bar_index, MonthlyL05,     "+0.50",            color=color.rgb(0, 0, 0, 100), style=label.style_label_left, textcolor=stddevsColor, size=size.tiny, text_font_family=font.family_monospace)
+    labelMn05       := label.new(bar_index, MonthlyLn05,    "-0.50",            color=color.rgb(0, 0, 0, 100), style=label.style_label_left, textcolor=stddevsColor, size=size.tiny, text_font_family=font.family_monospace)
+    labelM10        := label.new(bar_index, MonthlyL10,     "+1.00",            color=color.rgb(0, 0, 0, 100), style=label.style_label_left, textcolor=stddevsColor, size=size.tiny, text_font_family=font.family_monospace)
+    labelMn10       := label.new(bar_index, MonthlyLn10,    "-1.00",            color=color.rgb(0, 0, 0, 100), style=label.style_label_left, textcolor=stddevsColor, size=size.tiny, text_font_family=font.family_monospace)
+    labelM15        := label.new(bar_index, MonthlyL15,     "+1.50",            color=color.rgb(0, 0, 0, 100), style=label.style_label_left, textcolor=stddevsColor, size=size.tiny, text_font_family=font.family_monospace)
+    labelMn15       := label.new(bar_index, MonthlyLn15,    "-1.50",            color=color.rgb(0, 0, 0, 100), style=label.style_label_left, textcolor=stddevsColor, size=size.tiny, text_font_family=font.family_monospace)
+    labelM20        := label.new(bar_index, MonthlyL20,     "+2.00",            color=color.rgb(0, 0, 0, 100), style=label.style_label_left, textcolor=stddevsColor, size=size.tiny, text_font_family=font.family_monospace)
+    labelMn20       := label.new(bar_index, MonthlyLn20,    "-2.00",            color=color.rgb(0, 0, 0, 100), style=label.style_label_left, textcolor=stddevsColor, size=size.tiny, text_font_family=font.family_monospace)
+    labelM25        := label.new(bar_index, MonthlyL25,     "+2.50",            color=color.rgb(0, 0, 0, 100), style=label.style_label_left, textcolor=stddevsColor, size=size.tiny, text_font_family=font.family_monospace)
+    labelMn25       := label.new(bar_index, MonthlyLn25,    "-2.50",            color=color.rgb(0, 0, 0, 100), style=label.style_label_left, textcolor=stddevsColor, size=size.tiny, text_font_family=font.family_monospace)
+    labelM30        := label.new(bar_index, MonthlyL30,     "+3.00",            color=color.rgb(0, 0, 0, 100), style=label.style_label_left, textcolor=stddevsColor, size=size.tiny, text_font_family=font.family_monospace)
+    labelMn30       := label.new(bar_index, MonthlyLn30,    "-3.00",            color=color.rgb(0, 0, 0, 100), style=label.style_label_left, textcolor=stddevsColor, size=size.tiny, text_font_family=font.family_monospace)
