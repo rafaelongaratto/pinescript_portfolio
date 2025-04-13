@@ -1,0 +1,169 @@
+//@version=5
+indicator('Weekly Standard Deviations', 'M&W_StdDevs', true)
+
+
+//________________________________________| std. dev. calculation.
+stddevw             = input.float(defval=3.25, step=0.01, title="±0.5 SD")
+
+//________________________________________| anchor, weekly & levels inputs.
+anchorColor         = input.color(color.rgb(0, 0, 0),             title="Color",    group="Anchor", inline = "anchorin")
+anchorStyle         = input.string(line.style_dotted,               title="Style",  group="Anchor", inline = "anchorin", options = [line.style_solid, line.style_dotted, line.style_dashed, line.style_arrow_both, line.style_arrow_left, line.style_arrow_right])
+anchorWidth         = input(1,                                      title="Width",   group="Anchor", inline = "anchorin")
+
+weeklyColor         = input.color(color.rgb(191, 91, 4, 0),      title="Color",  group="Weekly", inline = "weeklyin")
+weeklyStyle         = input.string(line.style_solid,               title="Style", group="Weekly", inline = "weeklyin", options = [line.style_solid, line.style_dotted, line.style_dashed, line.style_arrow_both, line.style_arrow_left, line.style_arrow_right])
+weeklyWidth         = input(1,                                     title="Width", group="Weekly", inline = "weeklyin")
+
+stddevsColor         = input.color(color.rgb(0, 0, 0),          title="Color",  group="StdDevs", inline  = "stddevsin")
+stddevsStyle         = input.string(line.style_solid,             title="Style", group="StdDevs", inline  = "stddevsin", options = [line.style_solid, line.style_dotted, line.style_dashed, line.style_arrow_both, line.style_arrow_left, line.style_arrow_right])
+stddevsWidth         = input(1,                                   title="Width", group="StdDevs", inline  = "stddevsin")
+
+//________________________________________| newM & currentM calculation.
+is_new_week        = ta.change(time("W"))
+current_week       = weekofyear(time)
+current_year        = year(time)
+is_current_week    = weekofyear(time) == current_week and year(time) == current_year
+
+//________________________________________| request the mOpen.
+[do_W] = request.security(syminfo.tickerid, 'W', [open], lookahead=barmerge.lookahead_on)
+
+//________________________________________| 1st bar_indexM storage.
+var int first_bar_index = na
+if is_new_week
+    first_bar_index    := bar_index
+
+//________________________________________| variables for lines & labels.
+var line    weekAnchor = na
+
+var line    openLine    = na
+var label   openLabel   = na
+
+var line    lineW05     = na
+var label   labelW05    = na
+
+var line    lineWn05    = na
+var label   labelWn05   = na
+
+var line    lineW10     = na
+var label   labelW10    = na
+
+var line    lineWn10    = na
+var label   labelWn10   = na
+
+
+var line    lineW15     = na
+var label   labelW15    = na
+
+var line    lineWn15    = na
+var label   labelWn15   = na
+
+
+var line    lineW20     = na
+var label   labelW20    = na
+
+var line    lineWn20    = na
+var label   labelWn20   = na
+
+var line    lineW25     = na
+var label   labelW25    = na
+
+var line    lineWn25    = na
+var label   labelWn25   = na
+
+var line    lineW30     = na
+var label   labelW30    = na
+
+var line    lineWn30    = na
+var label   labelWn30   = na
+
+//________________________________________| levels calc. for each week.
+
+WeeklyOpen     = is_current_week ? do_W : na
+
+WeeklyL05      = is_current_week ? do_W * (100 + stddevw)     / 100 : na
+WeeklyLn05     = is_current_week ? do_W * (100 - stddevw)     / 100 : na
+
+WeeklyL10      = is_current_week ? do_W * (100 + stddevw * 2) / 100 : na
+WeeklyLn10     = is_current_week ? do_W * (100 - stddevw * 2) / 100 : na
+
+WeeklyL15      = is_current_week ? do_W * (100 + stddevw * 3) / 100 : na
+WeeklyLn15     = is_current_week ? do_W * (100 - stddevw * 3) / 100 : na
+
+WeeklyL20      = is_current_week ? do_W * (100 + stddevw * 4) / 100 : na
+WeeklyLn20     = is_current_week ? do_W * (100 - stddevw * 4) / 100 : na
+
+WeeklyL25      = is_current_week ? do_W * (100 + stddevw * 5) / 100 : na
+WeeklyLn25     = is_current_week ? do_W * (100 - stddevw * 5) / 100 : na
+
+WeeklyL30      = is_current_week ? do_W * (100 + stddevw * 6) / 100 : na
+WeeklyLn30     = is_current_week ? do_W * (100 - stddevw * 6) / 100 : na
+
+//________________________________________| lines update for current week.
+if is_current_week
+    line.delete(weekAnchor[1])
+    line.delete(openLine[1])
+    line.delete(lineW05[1])
+    line.delete(lineWn05[1])
+    line.delete(lineW10[1])
+    line.delete(lineWn10[1])
+    line.delete(lineW15[1])
+    line.delete(lineWn15[1])
+    line.delete(lineW20[1])
+    line.delete(lineWn20[1])                     //delete previous lines.
+    line.delete(lineW25[1])
+    line.delete(lineWn25[1])  
+    line.delete(lineW30[1])
+    line.delete(lineWn30[1])  
+
+    if not na(first_bar_index)
+        weekAnchor := line.new(first_bar_index, WeeklyL30, first_bar_index, WeeklyLn30,   color=anchorColor, style = anchorStyle, width = anchorWidth)
+
+        openLine    := line.new(first_bar_index, WeeklyOpen,   bar_index, WeeklyOpen,     color=weeklyColor, style = weeklyStyle, width = weeklyWidth)
+
+        lineW05     := line.new(first_bar_index, WeeklyL05,    bar_index, WeeklyL05,      color=stddevsColor, style = stddevsStyle, width = stddevsWidth)
+        lineWn05    := line.new(first_bar_index, WeeklyLn05,   bar_index, WeeklyLn05,     color=stddevsColor, style = stddevsStyle, width = stddevsWidth)
+
+        lineW10     := line.new(first_bar_index, WeeklyL10,    bar_index, WeeklyL10,      color=stddevsColor, style = stddevsStyle, width = stddevsWidth)
+        lineWn10    := line.new(first_bar_index, WeeklyLn10,   bar_index, WeeklyLn10,     color=stddevsColor, style = stddevsStyle, width = stddevsWidth)
+
+        lineW15     := line.new(first_bar_index, WeeklyL15,    bar_index, WeeklyL15,      color=stddevsColor, style = stddevsStyle, width = stddevsWidth)
+        lineWn15    := line.new(first_bar_index, WeeklyLn15,   bar_index, WeeklyLn15,     color=stddevsColor, style = stddevsStyle, width = stddevsWidth)
+
+        lineW20     := line.new(first_bar_index, WeeklyL20,    bar_index, WeeklyL20,      color=stddevsColor, style = stddevsStyle, width = stddevsWidth)
+        lineWn20    := line.new(first_bar_index, WeeklyLn20,   bar_index, WeeklyLn20,     color=stddevsColor, style = stddevsStyle, width = stddevsWidth)   //new lines from first bar of the week to current bar
+        
+        lineW25     := line.new(first_bar_index, WeeklyL25,    bar_index, WeeklyL25,      color=stddevsColor, style = stddevsStyle, width = stddevsWidth)
+        lineWn25    := line.new(first_bar_index, WeeklyLn25,   bar_index, WeeklyLn25,     color=stddevsColor, style = stddevsStyle, width = stddevsWidth)
+    
+        lineW30     := line.new(first_bar_index, WeeklyL30,    bar_index, WeeklyL30,      color=stddevsColor, style = stddevsStyle, width = stddevsWidth)
+        lineWn30    := line.new(first_bar_index, WeeklyLn30,   bar_index, WeeklyLn30,     color=stddevsColor, style = stddevsStyle, width = stddevsWidth)
+
+//________________________________________| labels update for current week.
+if barstate.islast and is_current_week
+    label.delete(openLabel[1])
+    label.delete(labelW05[1])
+    label.delete(labelWn05[1])
+    label.delete(labelW10[1])
+    label.delete(labelWn10[1])
+    label.delete(labelW15[1])
+    label.delete(labelWn15[1])
+    label.delete(labelW20[1])
+    label.delete(labelWn20[1])
+    label.delete(labelW25[1])
+    label.delete(labelWn25[1])
+    label.delete(labelW30[1])
+    label.delete(labelWn30[1])
+
+    openLabel       := label.new(bar_index, WeeklyOpen,    "±W. Opening",      color=color.rgb(0, 0, 0, 100), style=label.style_label_left, textcolor=weeklyColor, size=size.tiny, text_font_family=font.family_monospace)
+    labelW05        := label.new(bar_index, WeeklyL05,     "+0.50",            color=color.rgb(0, 0, 0, 100), style=label.style_label_left, textcolor=stddevsColor, size=size.tiny, text_font_family=font.family_monospace)
+    labelWn05       := label.new(bar_index, WeeklyLn05,    "-0.50",            color=color.rgb(0, 0, 0, 100), style=label.style_label_left, textcolor=stddevsColor, size=size.tiny, text_font_family=font.family_monospace)
+    labelW10        := label.new(bar_index, WeeklyL10,     "+1.00",            color=color.rgb(0, 0, 0, 100), style=label.style_label_left, textcolor=stddevsColor, size=size.tiny, text_font_family=font.family_monospace)
+    labelWn10       := label.new(bar_index, WeeklyLn10,    "-1.00",            color=color.rgb(0, 0, 0, 100), style=label.style_label_left, textcolor=stddevsColor, size=size.tiny, text_font_family=font.family_monospace)
+    labelW15        := label.new(bar_index, WeeklyL15,     "+1.50",            color=color.rgb(0, 0, 0, 100), style=label.style_label_left, textcolor=stddevsColor, size=size.tiny, text_font_family=font.family_monospace)
+    labelWn15       := label.new(bar_index, WeeklyLn15,    "-1.50",            color=color.rgb(0, 0, 0, 100), style=label.style_label_left, textcolor=stddevsColor, size=size.tiny, text_font_family=font.family_monospace)
+    labelW20        := label.new(bar_index, WeeklyL20,     "+2.00",            color=color.rgb(0, 0, 0, 100), style=label.style_label_left, textcolor=stddevsColor, size=size.tiny, text_font_family=font.family_monospace)
+    labelWn20       := label.new(bar_index, WeeklyLn20,    "-2.00",            color=color.rgb(0, 0, 0, 100), style=label.style_label_left, textcolor=stddevsColor, size=size.tiny, text_font_family=font.family_monospace)
+    labelW25        := label.new(bar_index, WeeklyL25,     "+2.50",            color=color.rgb(0, 0, 0, 100), style=label.style_label_left, textcolor=stddevsColor, size=size.tiny, text_font_family=font.family_monospace)
+    labelWn25       := label.new(bar_index, WeeklyLn25,    "-2.50",            color=color.rgb(0, 0, 0, 100), style=label.style_label_left, textcolor=stddevsColor, size=size.tiny, text_font_family=font.family_monospace)
+    labelW30        := label.new(bar_index, WeeklyL30,     "+3.00",            color=color.rgb(0, 0, 0, 100), style=label.style_label_left, textcolor=stddevsColor, size=size.tiny, text_font_family=font.family_monospace)
+    labelWn30       := label.new(bar_index, WeeklyLn30,    "-3.00",            color=color.rgb(0, 0, 0, 100), style=label.style_label_left, textcolor=stddevsColor, size=size.tiny, text_font_family=font.family_monospace)
