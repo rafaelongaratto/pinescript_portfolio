@@ -26,8 +26,9 @@ This strategy is just a algorithmic confluence for already existing trading stra
 - If the file extension shows as `.txt` or `.pine.txt`, it’s still PineScript code—rename to `.pine` or paste directly into TradingView.
 
 #______| Contact
-Feel free to reach out via linkedin.com/in/rafaelongaratto or github.com/rafaelongaratto
+Feel free to reach out via linkedin.com/in/rafael-ongaratto or github.com/rafaelongaratto
 
 #____________________
 Built by Rafael Ongaratto
+
 #____________________
