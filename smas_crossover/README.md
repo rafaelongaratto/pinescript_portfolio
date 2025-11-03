@@ -38,8 +38,9 @@ Below is a sample output:
 
 **□ Contact**
 
-Feel free to reach out via **linkedin.com/in/rafaelongaratto** or **github.com/rafaelongaratto**
+Feel free to reach out via **linkedin.com/in/rafael-ongaratto** or **github.com/rafaelongaratto**
 
 _✓ Built by Rafael Ongaratto_
+
 
 
