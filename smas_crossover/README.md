@@ -14,12 +14,16 @@ This project contains custom Pine Script code for TA & automated trading strateg
 **□ How to Use**
 
 1 ⁃ Open Trading View (tradingview.com)
+
 2 ⁃ Go to the Pine Editor (bottom left of the program).
+
 3 ⁃ Click at the Arrow Down, Create New, Indicator (Ctrl + K, Ctrl + I)
+
 4 ⁃ Copy and paste the code from 'SMAs_crossover_strat.pine'.
+
 4 ⁃ Click “Add to Chart” to see the strategy/indicator.
-5 ⁃ Adjust parameters (if any) in the settings.
-6 ⁃ Works better in the 5m.
+
+5 ⁃ Adjust parameters (if any) in the settings. _(works better in the 5m)_
 
 **□ Example**
 
@@ -37,4 +41,5 @@ Below is a sample output:
 Feel free to reach out via **linkedin.com/in/rafaelongaratto** or **github.com/rafaelongaratto**
 
 _✓ Built by Rafael Ongaratto_
+
 
